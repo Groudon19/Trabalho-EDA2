@@ -3,7 +3,7 @@
 ArvoreB* criaArvoreB(int ordem){
     ArvoreB* a = malloc(sizeof(ArvoreB));
     a->ordem = ordem;
-    a->raiz = criaNo(a);
+    a->raiz = criaNoB(a);
 
     return a;
 }
@@ -127,7 +127,7 @@ void adicionaChave(ArvoreB* arvore, int chave){
 }
 
 void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave){
-    adicionaChaveNO(no, novo, chave);
+    adicionaChaveNo(no, novo, chave);
     if (transbordo(arvore, no)){
         int promovido = no->chaves[arvore->ordem];
         NoB* novo = divideNoB(arvore, no);
