@@ -1,5 +1,9 @@
 #include "avl.h"
 
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define RESET "\033[0m"
+
 void balanceamento(Arvore*, No*);
 
 int altura(No*);
@@ -65,6 +69,133 @@ void adicionar(Arvore* arvore, int valor) {
         balanceamento(arvore, no);
     }
 }
+
+
+void remover(Arvore* arvore, int valor){
+
+    int filho_esq;
+    int filho_dir;
+
+    if(arvore->raiz == NULL){
+        printf("Arvore vazia!\n");
+        return;
+    }
+
+    No* no = arvore->raiz; 
+    No* pai = NULL;  
+
+    //inicio da busca pelo no a ser removido
+    while (no != NULL && no->valor != valor) {
+        
+        pai = no;
+        if (valor > no->valor) {
+            no = no->direita;    
+        } else {
+            no = no->esquerda;
+        }
+    }
+    
+    //ve se achou ou nao o no procurado
+    if(no == NULL){
+        printf("A chave nao foi encontrada na arvore!\n");
+        return;
+    }
+
+    // caso 1 de remocao: o no a ser removido eh uma folha
+    if(no->esquerda == NULL && no->direita == NULL){
+        if(pai == NULL){ // o no que vai ser removido eh a raiz
+            arvore->raiz = NULL;
+        }else if(pai->esquerda == no){ // remover o no da esquerda do pai
+            pai->esquerda = NULL;
+        }else{  // remover o no da direita do pai
+            pai->direita = NULL;
+        }
+        free(no);
+
+    // caso 2 de remocao: o no a ser removido tem apenas um filho    
+    }else if (no->esquerda == NULL || no->direita == NULL){
+        
+        No* filho;
+        // verificando onde que esta o unico no filho
+        if(no->esquerda != NULL){
+            filho = no->esquerda;
+        }else{
+            filho = no->direita;
+        }
+
+        if(pai == NULL){ // o no removido era a raiz
+            arvore->raiz = filho;
+        } else if ( pai->esquerda == no){
+            pai->esquerda = filho;
+        }else{
+            pai->direita = filho;
+        }
+
+        filho->pai = pai;
+        free(no);
+
+    // caso 3 de remocao: o no a ser removido tem 2 filhos
+    }else{
+        // substituir o no pelo sucessor em ordem
+        No* sucessor = no->direita;
+        while (sucessor->esquerda != NULL){
+            sucessor = sucessor->esquerda;
+        }
+
+        //trocar o atual pelo sucessor
+        no->valor = sucessor->valor;
+
+        // remover o sucessor que tem um filho
+        if(sucessor->pai->esquerda == sucessor){
+            sucessor->pai->esquerda == sucessor->direita;
+        }else{
+            sucessor->pai->direita = sucessor->direita;
+        } if(sucessor->direita != NULL){
+            sucessor->direita->pai = sucessor->pai;
+        }
+        free(sucessor);
+
+
+    }
+
+    // rebalancear a arvore toda
+    No* atual;
+    if(pai != NULL){
+        atual = pai;
+    }else{
+        atual = arvore->raiz;
+    }
+
+    while(atual != NULL){
+        atual->altura = maximo(altura(atual->esquerda), altura(atual->direita) + 1);
+        int fator = fb(atual);
+
+        // checar e aplicar rotacoes
+        if(fator > 1){ // desbalanceou na esquerda
+            
+            if(fb(atual->esquerda) >= 0 ){
+                rsd(arvore, atual);
+            }else{
+                rdd(arvore, atual);
+            }
+
+        }else if(fator < -1){ // desbalanceou para direita
+            if(fb(atual->direita) <= 0){
+                rse(arvore, atual);
+            }else{
+                rde(arvore, atual);
+            }
+        }
+
+        // ir subindo na arvore para rebalancea-la totalmente
+        atual = atual->pai;
+    }
+
+}
+
+
+
+
 
 No* localizar(No* no, int valor) {
     while (no != NULL) {
@@ -205,4 +336,46 @@ No* rde(Arvore* arvore, No* no) {
 No* rdd(Arvore* arvore, No* no) {
     no->esquerda = rse(arvore, no->esquerda);
     return rsd(arvore, no);
+}
+
+void imprimir_por_altura(Arvore* arvore) {
+
+    if (arvore == NULL || arvore->raiz == NULL) {
+        printf("A árvore está vazia.\n");
+        return;
+    }
+    
+    int num = 1000;
+    
+    No** fila = malloc(sizeof(No*) * num); // fila para ate num numeros
+    int inicio = 0, fim = 0; // indices para fim e inicio da fila
+    
+    fila[fim++] = arvore->raiz;
+    fila[fim++] = NULL; // marcador
+    
+    int nivel_atual = 0;
+    printf("Nível %d: ", nivel_atual); // printa a raiz no nivel 0
+    
+    while (inicio < fim) {
+        No* no_atual = fila[inicio++];
+
+        if (no_atual == NULL) { // mudanca de nivel para impressao
+            if (inicio < fim) {
+                fila[fim++] = NULL; // marcador de nivel
+                nivel_atual++;
+                printf("\nNível %d: ", nivel_atual);
+            }
+        } else {
+            // print do valor do no e o fator de balanceamento
+            printf(GREEN "%d" RESET "(fb=%d) ", no_atual->valor, fb(no_atual));
+
+            // add os filhos do no atual na fila
+            if (no_atual->esquerda != NULL) fila[fim++] = no_atual->esquerda;
+            if (no_atual->direita != NULL) fila[fim++] = no_atual->direita;
+        }
+    }
+
+    printf("\n");
+    free(fila);
+
 }

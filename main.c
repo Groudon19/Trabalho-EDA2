@@ -15,4 +15,39 @@ int main() {
     percorrer(a->raiz,visitar);
     printf("\n");
     printf("Altura: %d\n", altura(a->raiz));   
+
+    remover(a, 5);
+    printf("In-order: ");
+    percorrer(a->raiz,visitar);
+    printf("\n");
+    printf("Altura: %d\n", altura(a->raiz));
+     
+    remover(a, 3);
+    printf("In-order: ");
+    percorrer(a->raiz,visitar);
+    printf("\n");
+    printf("Altura: %d\n", altura(a->raiz));
+    
+    remover(a, 7);
+    printf("In-order: ");
+    percorrer(a->raiz,visitar);
+    printf("\n");
+    printf("Altura: %d\n", altura(a->raiz));
+    
+
+    remover(a, 1);
+    printf("In-order: ");
+    percorrer(a->raiz,visitar);
+    printf("\n");
+    printf("Altura: %d\n", altura(a->raiz));
+
+
+    remover(a, 2);
+    printf("In-order: ");
+    percorrer(a->raiz,visitar);
+    printf("\n");
+    printf("Altura: %d\n", altura(a->raiz));
+    
+    
+
 }
