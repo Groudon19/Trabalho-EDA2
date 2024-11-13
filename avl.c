@@ -113,7 +113,7 @@ void remover(Arvore* arvore, int valor){
         free(no);
 
     // caso 2 de remocao: o no a ser removido tem apenas um filho    
-    }else if (no->esquerda == NULL || no->direita == NULL){
+    }else if ((no->esquerda == NULL && no->direita != NULL)||( no->direita == NULL && no->esquerda != NULL)){
         
         No* filho;
         // verificando onde que esta o unico no filho
@@ -147,14 +147,15 @@ void remover(Arvore* arvore, int valor){
 
         // remover o sucessor que tem um filho
         if(sucessor->pai->esquerda == sucessor){
-            sucessor->pai->esquerda == sucessor->direita;
+            sucessor->pai->esquerda = sucessor->direita;
         }else{
             sucessor->pai->direita = sucessor->direita;
-        } if(sucessor->direita != NULL){
+        } 
+        
+        if(sucessor->direita != NULL){
             sucessor->direita->pai = sucessor->pai;
         }
         free(sucessor);
-
 
     }
 
@@ -345,7 +346,7 @@ void imprimir_por_altura(Arvore* arvore) {
         return;
     }
     
-    int num = 1000;
+    int num = 10000; // ajustar conforme o numero de testes cresce
     
     No** fila = malloc(sizeof(No*) * num); // fila para ate num numeros
     int inicio = 0, fim = 0; // indices para fim e inicio da fila
@@ -353,6 +354,8 @@ void imprimir_por_altura(Arvore* arvore) {
     fila[fim++] = arvore->raiz;
     fila[fim++] = NULL; // marcador
     
+    printf("\n--- EXIBICAO DA AVL ---\n");
+
     int nivel_atual = 0;
     printf("Nível %d: ", nivel_atual); // printa a raiz no nivel 0
     
