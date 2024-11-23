@@ -25,6 +25,7 @@ int transbordo(ArvoreB* arvore, NoB* no);
 NoB* divideNoB(ArvoreB* arvore, NoB* no);
 void adicionaChave(ArvoreB* arvore, int chave);
 void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave);
+void removeChaveFolha(NoB* no, int chave);
 void removeChave(ArvoreB* arvore, int chave);
 void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave);
 int encontraPredecessor(NoB* no);
@@ -35,4 +36,5 @@ void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice);
 void imprimeDetalhesNo(NoB* no, int nivel);
 void imprimeDetalhesArvore(ArvoreB* arvore);
 int existe_no_vetor(int* vet, int tam, int valor);
+
 
