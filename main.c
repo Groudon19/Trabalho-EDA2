@@ -27,8 +27,8 @@ int main() {
 
     ArvoreB* arvore = criaArvoreB(2);    
     adicionaChave(arvore, 0);
-    // adicionaChave(arvore, 1);
-    // adicionaChave(arvore, 2);
+    adicionaChave(arvore, 1);
+    adicionaChave(arvore, 2);   
     adicionaChave(arvore, 3);
     adicionaChave(arvore, 4);
     adicionaChave(arvore, 5);
@@ -42,10 +42,9 @@ int main() {
     adicionaChave(arvore, 13);
     adicionaChave(arvore, 14);
 
-    // for(int i = 0; i < tam; i++){
-    //     adicionaChave(arvore, vet_add[i]);
-    // }
+
     imprimeDetalhesArvore(arvore);
+    
     
     
 
