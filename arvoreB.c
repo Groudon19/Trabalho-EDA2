@@ -15,7 +15,7 @@ NoB* criaNoB(ArvoreB* arvore){
     no->pai = NULL;
 
     no->chaves = malloc(sizeof(int) * (max + 1));
-    no->filhos = malloc(sizeof(NoB) * (max + 2)); // não teria que ser um sizeof(NoB*)? n sei, aparentemente n
+    no->filhos = malloc(sizeof(NoB*) * (max + 2)); // não teria que ser um sizeof(NoB*)? n sei, aparentemente n
     no->total_chaves = 0;
 
     for(int i = 0; i < max + 2; i++){
@@ -181,9 +181,11 @@ void removeChave(ArvoreB* arvore, int chave){
 
 void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave){
     int i = pesquisaBinaria(no, chave);
-    printf("%i ", i);
-    printf("percorreu!\n");
+    printf("\npercorreu!\n");
     //caso 1: chave em uma folha
+    if(chave == 5){
+        imprimeDetalhesNo(no, 0);
+    }
     if(no->filhos[0] == NULL){
         if(i < no->total_chaves && no->chaves[i] == chave){
             printf("\nfolha\n");
@@ -214,6 +216,7 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave){
         }else{
             //fusao dos nós
             fundirNos(arvore, no, i);
+            
             printf("Fundiu?\n");
         }
         return;
@@ -226,11 +229,17 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave){
         NoB* irmaoEsq = (i > 0) ? no->filhos[i-1] : NULL;
         NoB* irmaoDir = (i < no->total_chaves) ? no->filhos[i+1] : NULL;
         
+        // imprimeDetalhesNo(no, 0);
+        // imprimeDetalhesNo(filho, 0);
+        // imprimeDetalhesNo(irmaoEsq, 0);
+        // printf("irmao dir: \n");
+        // imprimeDetalhesNo(irmaoDir, 0);
         
         if(irmaoEsq != NULL && irmaoEsq->total_chaves >= arvore->ordem){
             //redistribuir do irmao esquerdo 
             printf("Caso 3a\n");
             redistribuirEsquerda(no, filho, irmaoEsq, i);
+            printf("redistribuiu!\n");
         } else if(irmaoDir != NULL && irmaoDir->total_chaves >= arvore->ordem && irmaoDir){
             printf("Caso 3ab\n");
             redistribuirDireita(no, filho, irmaoDir, i);
@@ -252,6 +261,11 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave){
 }
 
 int encontraPredecessor(NoB* no){
+    if (no == NULL || no->total_chaves == 0) {
+        printf("Erro: Nó vazio ao buscar predecessor.\n");
+        exit(EXIT_FAILURE);
+    }
+
     while(no->filhos[no->total_chaves] != NULL){
         no = no->filhos[no->total_chaves];
     }
@@ -279,7 +293,7 @@ void fundirNos(ArvoreB* tree, NoB* no, int indice){
     
     filhoEsq->filhos[filhoEsq->total_chaves + 1 + filhoDir->total_chaves] = filhoDir->filhos[filhoDir->total_chaves];
     //imprimeDetalhesNo(filhoEsq, 0);
-    filhoEsq->total_chaves = filhoEsq->total_chaves + filhoDir->total_chaves + 1;
+    filhoEsq->total_chaves += filhoDir->total_chaves + 1;
 
     for(int i = indice+1; i < no->total_chaves; i++){
         no->chaves[i-1] = no->chaves[i];
@@ -297,30 +311,40 @@ void fundirNos(ArvoreB* tree, NoB* no, int indice){
     }
 }
 
-void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice){
+void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice) {
     
     for (int i = filho->total_chaves; i > 0; i--) {
         filho->chaves[i] = filho->chaves[i - 1];
-        filho->filhos[i + 1] = filho->filhos[i]; //substituição simples, da direita recebe o anterior
+        filho->filhos[i + 1] = filho->filhos[i];
     }
-    filho->filhos[1] = filho->filhos[0];
-    filho->chaves[0] = pai->chaves[indice];
-    pai->chaves[indice] = irmao->chaves[irmao->total_chaves - 1];
+
+    //ERRO AQUI!
+    filho->filhos[1] = NULL;
     filho->filhos[0] = irmao->filhos[irmao->total_chaves];
-    filho->total_chaves++;
+    //----------------------------------------------------//
+
+    // acho que nao precisa disso
+    // filho->chaves[0] = irmao->chaves[irmao->total_chaves - 1];
+
+    // Atualiza o irmão e o nó pai
     irmao->total_chaves--;
+    filho->total_chaves++;
 }
+
 
 void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice) {
     filho->chaves[filho->total_chaves] = pai->chaves[indice];
     filho->filhos[filho->total_chaves + 1] = irmao->filhos[0];
+
     pai->chaves[indice] = irmao->chaves[0];
 
     for (int i = 1; i < irmao->total_chaves; i++) {
         irmao->chaves[i - 1] = irmao->chaves[i];
         irmao->filhos[i - 1] = irmao->filhos[i];
     }
+
     irmao->filhos[irmao->total_chaves - 1] = irmao->filhos[irmao->total_chaves];
+
     irmao->total_chaves--;
     filho->total_chaves++;
 }
@@ -331,6 +355,7 @@ void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice) {
 
 void imprimeDetalhesNo(NoB* no, int nivel) {
     if (no == NULL) {
+        printf("no vazio:\n");
         return;
     }
 
@@ -372,4 +397,25 @@ int existe_no_vetor(int* vet, int tam, int valor){
         }
     }
     return 0;
+}
+
+void tira_vetor(int* vet, int* tam, int valor){
+    int indice = -1;
+    for(int i = 0; i < *tam ; i++){
+        if(vet[i] == valor){
+            indice = i;
+            break;
+        }
+    }
+
+    if(indice == -1){
+        return;
+    }
+    for(int i = indice; i < *tam; i++){
+        vet[i] = vet[i+1];
+    }
+
+    (*tam)--;
+    vet[*tam] = 0;
+
 }
