@@ -422,23 +422,3 @@ int existe_no_vetor(int* vet, int tam, int valor){
     return 0;
 }
 
-void tira_vetor(int* vet, int* tam, int valor){
-    int indice = -1;
-    for(int i = 0; i < *tam ; i++){
-        if(vet[i] == valor){
-            indice = i;
-            break;
-        }
-    }
-
-    if(indice == -1){
-        return;
-    }
-    for(int i = indice; i < *tam; i++){
-        vet[i] = vet[i+1];
-    }
-
-    (*tam)--;
-    vet[*tam] = 0;
-
-}
