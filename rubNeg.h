@@ -22,12 +22,12 @@ typedef struct arvore {
 // Declaração de funções
 Arvore* criar();
 int vazia(Arvore* arvore);
-No* adicionar(Arvore* arvore, int valor);
+No* adicionar(Arvore* arvore, int valor, int* cont_add, int val);
 void percorrerProfundidadeInOrder(Arvore* arvore, No* no, void (*callback)(int));
 void visitar(int valor);
-void remover(Arvore* arvore, int valor);
+void remover(Arvore* arvore, int valor, int* cont_rem, int val);
 No* criarNo(Arvore* arvore, No* pai, int valor);
-void balancear(Arvore* arvore, No* no);
+void balancear(Arvore* arvore, No* no, int* cont_add, int val);
 void rotacionarEsquerda(Arvore* arvore, No* no);
 void rotacionarDireita(Arvore* arvore, No* no);
 

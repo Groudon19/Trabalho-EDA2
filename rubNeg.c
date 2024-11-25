@@ -27,38 +27,41 @@ No* criarNo(Arvore* arvore, No* pai, int valor) {
     return no;
 }
 
-No* adicionarNo(Arvore* arvore, No* no, int valor) {
+No* adicionarNo(Arvore* arvore, No* no, int valor, int* cont_add, int val) {
     if (valor > no->valor) {
         if (no->direita == arvore->nulo) {
             no->direita = criarNo(arvore, no, valor);     
-            no->direita->cor = Vermelho;       
+            no->direita->cor = Vermelho;
+            cont_add[val]++;       
         		
             return no->direita;
         } else {
-            return adicionarNo(arvore, no->direita, valor);
+            cont_add[val]++;
+            return adicionarNo(arvore, no->direita, valor, cont_add, val);
         }
     } else {
         if (no->esquerda == arvore->nulo) {
             no->esquerda = criarNo(arvore, no, valor);
             no->esquerda->cor = Vermelho;
-            
+            cont_add[val]++;
             return no->esquerda;
         } else {
-            return adicionarNo(arvore, no->esquerda, valor);
+            cont_add[val]++;
+            return adicionarNo(arvore, no->esquerda, valor, cont_add, val);
         }
     }
 }
 
-No* adicionar(Arvore* arvore, int valor) {
+No* adicionar(Arvore* arvore, int valor, int* cont_add, int val) {
     if (vazia(arvore)) {
         arvore->raiz = criarNo(arvore, arvore->nulo, valor);
         arvore->raiz->cor = Preto;
-        	
+        cont_add[val]++;	
         return arvore->raiz;
     } else {
-        No* no = adicionarNo(arvore, arvore->raiz, valor);
-        balancear(arvore, no);
-        
+        No* no = adicionarNo(arvore, arvore->raiz, valor, cont_add, val);
+        balancear(arvore, no, cont_add, val);
+        //cont_add[val]++;
         return no;
     }
 }
@@ -109,7 +112,7 @@ void visitar(int valor){
     printf("%d ", valor);
 }
 
-void balancear(Arvore* arvore, No* no) {
+void balancear(Arvore* arvore, No* no, int* cont_add, int val) {
     while (no->pai->cor == Vermelho) {
         if (no->pai == no->pai->pai->esquerda) {
             No *tio = no->pai->pai->direita;
@@ -124,10 +127,12 @@ void balancear(Arvore* arvore, No* no) {
                 if (no == no->pai->direita) {
                     no = no->pai; //Caso 2
                     rotacionarEsquerda(arvore, no); //Caso 2
+                    cont_add[val]++;
                 } else {
                     no->pai->cor = Preto; 
                     no->pai->pai->cor = Vermelho; //Caso 3
                     rotacionarDireita(arvore, no->pai->pai); //Caso 3
+                    cont_add[val]++;
                 }
             }
         } else {
@@ -143,10 +148,12 @@ void balancear(Arvore* arvore, No* no) {
                 if (no == no->pai->esquerda) {
                     no = no->pai; //Caso 2
                     rotacionarDireita(arvore, no); //Caso 2
+                    cont_add[val]++;
                 } else {
                     no->pai->cor = Preto; 
                     no->pai->pai->cor = Vermelho; //Caso 3
                     rotacionarEsquerda(arvore, no->pai->pai); //Caso 3
+                    cont_add[val]++;
                 }
             }
         }
@@ -216,7 +223,7 @@ No* minimoSubarvore(Arvore* arvore, No* no) {
     return no;
 }
 
-void correcaoRemocao(Arvore* arvore, No* x) {
+void correcaoRemocao(Arvore* arvore, No* x, int* cont_rem, int val) {
     while (x != arvore->raiz && x->cor == Preto) {
         if (x == x->pai->esquerda) {
             No* w = x->pai->direita;
@@ -224,6 +231,7 @@ void correcaoRemocao(Arvore* arvore, No* x) {
                 w->cor = Preto;
                 x->pai->cor = Vermelho;
                 rotacionarEsquerda(arvore, x->pai);
+                cont_rem[val]++;
                 w = x->pai->direita;
             }
             if (w->esquerda->cor == Preto && w->direita->cor == Preto) {
@@ -234,12 +242,14 @@ void correcaoRemocao(Arvore* arvore, No* x) {
                     w->esquerda->cor = Preto;
                     w->cor = Vermelho;
                     rotacionarDireita(arvore, w);
+                    cont_rem[val]++;
                     w = x->pai->direita;
                 }
                 w->cor = x->pai->cor;
                 x->pai->cor = Preto;
                 w->direita->cor = Preto;
                 rotacionarEsquerda(arvore, x->pai);
+                cont_rem[val]++;
                 x = arvore->raiz;
             }
         } else {
@@ -248,6 +258,7 @@ void correcaoRemocao(Arvore* arvore, No* x) {
                 w->cor = Preto;
                 x->pai->cor = Vermelho;
                 rotacionarDireita(arvore, x->pai);
+                cont_rem[val]++;
                 w = x->pai->esquerda;
             }
             if (w->direita->cor == Preto && w->esquerda->cor == Preto) {
@@ -258,12 +269,14 @@ void correcaoRemocao(Arvore* arvore, No* x) {
                     w->direita->cor = Preto;
                     w->cor = Vermelho;
                     rotacionarEsquerda(arvore, w);
+                    cont_rem[val]++;
                     w = x->pai->esquerda;
                 }
                 w->cor = x->pai->cor;
                 x->pai->cor = Preto;
                 w->esquerda->cor = Preto;
                 rotacionarDireita(arvore, x->pai);
+                cont_rem[val]++;
                 x = arvore->raiz;
             }
         }
@@ -271,12 +284,14 @@ void correcaoRemocao(Arvore* arvore, No* x) {
     x->cor = Preto;
 }
 
-void remover(Arvore* arvore, int valor) {
+void remover(Arvore* arvore, int valor, int* cont_rem, int val) {
     // Procurar o nó com o valor especificado
     No* z = arvore->raiz;
     while (z != arvore->nulo && z->valor != valor) {
         z = (valor < z->valor) ? z->esquerda : z->direita;
+        cont_rem[val]++;
     }
+   
 
     // Se o nó não foi encontrado, retornar
     if (z == arvore->nulo) {
@@ -292,11 +307,14 @@ void remover(Arvore* arvore, int valor) {
     if (z->esquerda == arvore->nulo) {
         x = z->direita;
         transplante(arvore, z, z->direita);
+        cont_rem[val]++;
     } else if (z->direita == arvore->nulo) {
         x = z->esquerda;
         transplante(arvore, z, z->esquerda);
+        cont_rem[val]++;    
     } else {
         y = minimoSubarvore(arvore, z->direita);
+        cont_rem[val]++;
         corOriginal = y->cor;
         x = y->direita;
         if (y->pai == z) {
@@ -305,14 +323,17 @@ void remover(Arvore* arvore, int valor) {
             transplante(arvore, y, y->direita);
             y->direita = z->direita;
             y->direita->pai = y;
+            cont_rem[val]++;
         }
         transplante(arvore, z, y);
         y->esquerda = z->esquerda;
         y->esquerda->pai = y;
         y->cor = z->cor;
+        cont_rem[val]++;
     }
     if (corOriginal == Preto) {
-        correcaoRemocao(arvore, x);
+        //cont_rem[val]++;
+        correcaoRemocao(arvore, x, cont_rem, val);
     }
     free(z);
 }
