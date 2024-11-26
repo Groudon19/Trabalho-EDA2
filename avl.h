@@ -1,33 +1,38 @@
+#ifndef AVL_H
+#define AVL_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
-typedef struct no_avl {
-    struct no_avl* pai;
-    struct no_avl* esquerda;
-    struct no_avl* direita;
+typedef struct no {
+    struct no* pai;
+    struct no* esquerda;
+    struct no* direita;
     int valor;
     int altura;
-} NoAVL;
+} No;
 
-typedef struct _avl {
-    struct no_avl* raiz;
+typedef struct arvore {
+    struct no* raiz;
 } Arvore;
 
-NoAVL* rsd(Arvore*, NoAVL*);
-NoAVL* rse(Arvore*, NoAVL*);
-NoAVL* rdd(Arvore*, NoAVL*);
-NoAVL* rde(Arvore*, NoAVL*);
-NoAVL* localizar(NoAVL* no, int valor);
+No* rsd(Arvore*, No*);
+No* rse(Arvore*, No*);
+No* rdd(Arvore*, No*);
+No* rde(Arvore*, No*);
+No* localizar(No* no, int valor);
 Arvore* criar();
 int maximo(int a, int b);
-int vazia_avl(Arvore* arvore);
-void remover_avl(Arvore* arvore, int valor, int* contador_rem);
-void adicionar_avl(Arvore* arvore, int valor, int* contadores);
-void percorrer(NoAVL* no, void (*callback)(int));
-void visitar_avl(int valor); 
-void balanceamento(Arvore* arvore, NoAVL* no, int* contadores);
-int altura(NoAVL* no);
-int fb(NoAVL* no);
+int vazia(Arvore* arvore);
+void remover(Arvore* arvore, int valor, int* contador_rem, int val);
+void adicionar(Arvore* arvore, int valor, int* contadores, int val);
+void percorrer(No* no, void (*callback)(int));
+void visitar(int valor); 
+void balanceamento(Arvore* arvore, No* no, int* contadores, int val);
+int altura(No* no);
+int fb(No* no);
 void imprimir_por_altura(Arvore* arvore);
 void destruir_avl(Arvore* arvore);
-void destruir_no(NoAVL* no);
+void destruir_no(No* no);
+
+#endif
