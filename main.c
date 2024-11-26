@@ -5,7 +5,7 @@
 #include <math.h>  // Para usar logaritmos
 
 #define tam_max 10000 // número máximo de elementos em cada árvore
-#define num_testes 1 // número de vezes que rodará cada conjunto
+#define num_testes 10 // número de vezes que rodará cada conjunto
 #define intervalo 100 // tamanho do intervalo para acréscimo da quantidade de elementos
 
 // função para verificar se o número gerado aleatoriamente já foi criado
@@ -74,7 +74,7 @@ void rodar_experimento(FILE* arquivo_adicao, FILE* arquivo_remocao) {
 
         for (int i = 0; i < num_testes; i++) {
             Arvore* a = criar(); // cria a árvore AVL
-            ArvoreB* arvoreB = criaArvoreB(1);
+            ArvoreB* arvoreB = criaArvoreB(10);
             ArvoreRN* rn = criarRN();
             rodar_teste(a, rn, arvoreB, tam, total_add, total_rem); // roda o teste para AVL
             destruir_avl(a); // destrói a árvore AVL
