@@ -111,14 +111,14 @@ NoB* divideNoB(ArvoreB* arvore, NoB* no){
     return novo;
 }
 
-void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* contador){
+void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* conta_add, int val){
     int i = pesquisaBinaria(no, chave);
 
-    contador[2]++;
+    conta_add[val]++;
     for (int j = no->total_chaves - 1; j >= i; j--){
         no->chaves[j + 1] = no->chaves[j];
         no->filhos[j + 2] = no->filhos[j + 1];
-        contador[2]++;
+        conta_add[val]++;
     }
 
     no->chaves[i] = chave;
@@ -128,31 +128,31 @@ void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* contador){
     no-> total_chaves++;
 }
 
-void adicionaChave(ArvoreB* arvore, int chave, int* contador){
+void adicionaChave(ArvoreB* arvore, int chave, int* conta_add, int val){
     NoB* no = localizaNoB(arvore, chave);
-    contador[2]++;
-    adicionaChaveRecursivo(arvore, no, NULL, chave, contador);
+    conta_add[val]++;
+    adicionaChaveRecursivo(arvore, no, NULL, chave, conta_add, val);
 }
 
-void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave, int* contador){
-    adicionaChaveNo(no, novo, chave, contador);
+void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave, int* conta_add, int val){
+    adicionaChaveNo(no, novo, chave, conta_add, val);
     //contador[2]++;
     if (transbordo(arvore, no)){
         int promovido = no->chaves[arvore->ordem];
-        contador[2]++;
+        conta_add[val]++;
         NoB* novo = divideNoB(arvore, no);
         
-        contador[2]++;
+        conta_add[val]++;
         if(no->pai == NULL){
             NoB* raiz = criaNoB(arvore);
             raiz->filhos[0] = no;
-            adicionaChaveNo(raiz, novo, promovido, contador);// diferente do slide
+            adicionaChaveNo(raiz, novo, promovido, conta_add, val);// diferente do slide
 
             no->pai = raiz;
             novo->pai = raiz;
             arvore->raiz = raiz;
         } else {
-            adicionaChaveRecursivo(arvore, no->pai, novo, promovido, contador);
+            adicionaChaveRecursivo(arvore, no->pai, novo, promovido, conta_add, val);
         }
     }
 }
@@ -166,7 +166,7 @@ void removeChaveFolha(NoB* no, int chave){
     no->total_chaves--;
 }
 
-void removeChave(ArvoreB* arvore, int chave, int* contador) {
+void removeChave(ArvoreB* arvore, int chave, int* conta_rem, int val) {
     NoB* raiz = arvore->raiz;
 
     if (raiz == NULL) {
@@ -174,7 +174,7 @@ void removeChave(ArvoreB* arvore, int chave, int* contador) {
         return;
     }
 
-    removeChaveRecursivo(arvore, raiz, chave, contador);
+    removeChaveRecursivo(arvore, raiz, chave, conta_rem, val);
 
     // raiz ficou vazia e não é folha
     if(raiz->total_chaves == 0){
@@ -186,7 +186,7 @@ void removeChave(ArvoreB* arvore, int chave, int* contador) {
         }
     }
 }
-void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador) {
+void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* conta_rem, int val) {
     int i = pesquisaBinaria(no, chave);
 
     // Caso 1: A chave está em uma folha
@@ -194,7 +194,7 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador) {
         if (i < no->total_chaves && no->chaves[i] == chave) {
             // Remover a chave do nó folha
             removeChaveFolha(no, chave);
-            contador[3]++;  // Contabiliza a remoção
+            conta_rem[val]++;  // Contabiliza a remoção
             printf("\nCaso 1\n");
         } else {
             printf("\nChave %d não encontrada.\n", chave);
@@ -211,21 +211,21 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador) {
             // Caso 2a: Substituir pelo predecessor
             int predecessor = encontraPredecessor(filhoEsq);
             no->chaves[i] = predecessor;
-            contador[3]++;  // Contabiliza a remoção do predecessor
+            conta_rem[val]++;  // Contabiliza a remoção do predecessor
             printf("\nCaso 2a\n");
-            removeChaveRecursivo(arvore, filhoEsq, predecessor, contador);
+            removeChaveRecursivo(arvore, filhoEsq, predecessor, conta_rem, val);
         } else if (filhoDir->total_chaves >= arvore->ordem) {
             // Caso 2b: Substituir pelo sucessor
             int sucessor = encontraSucessor(filhoDir);
             no->chaves[i] = sucessor;
-            contador[3]++;  // Contabiliza a remoção do sucessor
+            conta_rem[val]++;  // Contabiliza a remoção do sucessor
             printf("\nCaso 2b\n");
-            removeChaveRecursivo(arvore, filhoDir, sucessor, contador);
+            removeChaveRecursivo(arvore, filhoDir, sucessor, conta_rem, val);
         } else {
             // Caso 2c: Fusão de filhos
-            fundirNos(arvore, no, i, contador);
+            fundirNos(arvore, no, i, conta_rem, val);
             printf("\nCaso 2c\n");
-            removeChaveRecursivo(arvore, filhoEsq, chave, contador);
+            removeChaveRecursivo(arvore, filhoEsq, chave, conta_rem, val);
         }
         return;
     }
@@ -240,23 +240,23 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador) {
         if (irmaoEsq != NULL && irmaoEsq->total_chaves >= arvore->ordem) {
             // Caso 3a: Redistribuir do irmão esquerdo
             printf("\nCaso 3a(esq)\n");
-            redistribuirEsquerda(no, filho, irmaoEsq, i, contador);
+            redistribuirEsquerda(no, filho, irmaoEsq, i, conta_rem, val);
         } else if (irmaoDir != NULL && irmaoDir->total_chaves >= arvore->ordem) {
             printf("\nCaso 3a (dir)\n");
-            redistribuirDireita(no, filho, irmaoDir, i, contador);
+            redistribuirDireita(no, filho, irmaoDir, i, conta_rem, val);
         } else {
             printf("\nCaso 3b\n");
             if (irmaoEsq != NULL) {
-                fundirNos(arvore, no, i - 1, contador);
+                fundirNos(arvore, no, i - 1,  conta_rem, val);
                 filho = irmaoEsq;
             } else {
-                fundirNos(arvore, no, i, contador);
+                fundirNos(arvore, no, i, conta_rem, val);
             }
         }
     }
 
     // Continuar a busca recursivamente
-    removeChaveRecursivo(arvore, filho, chave, contador);
+    removeChaveRecursivo(arvore, filho, chave, conta_rem, val);
 }
 
 int encontraPredecessor(NoB* no) {
@@ -273,7 +273,7 @@ int encontraSucessor(NoB* no) {
     return no->chaves[0];
 }
 
-void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* contador) {
+void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* conta_add, int val) {
     NoB* filhoEsq = no->filhos[indice];
     NoB* filhoDir = no->filhos[indice + 1];
 
@@ -299,10 +299,10 @@ void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* contador) {
     no->total_chaves--; //diminuir porque fundiu dois nós
 
     free(filhoDir);
-    contador[3]++;  // Contabiliza a fusão dos nós
+    conta_add[val]++;  // Contabiliza a fusão dos nós
 }
 
-void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador) {
+void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* conta_add, int val) {
     if(filho->total_chaves >= 1){
         for (int i = filho->total_chaves; i > 0; i--) {
             filho->chaves[i] = filho->chaves[i - 1];
@@ -322,10 +322,10 @@ void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* con
     }
     filho->total_chaves++;
     irmao->total_chaves--;
-    contador[3]++;  // Contabiliza a redistribuição
+    conta_add[val]++;  // Contabiliza a redistribuição
 }
 
-void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador) {
+void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* conta_add, int val) {
     filho->chaves[filho->total_chaves] = pai->chaves[indice];
     filho->filhos[filho->total_chaves + 1] = irmao->filhos[0];
     pai->chaves[indice] = irmao->chaves[0];
@@ -337,7 +337,7 @@ void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* cont
     irmao->filhos[irmao->total_chaves - 1] = irmao->filhos[irmao->total_chaves];
     irmao->total_chaves--;
     filho->total_chaves++;
-    contador[3]++;  // Contabiliza a redistribuição
+    conta_add[val]++;  // Contabiliza a redistribuição
 }
 
 
