@@ -4,30 +4,30 @@
 #define GREEN "\033[32m"
 #define RESET "\033[0m"
 
-int altura(No*);
+int altura(NoAVL*);
 
-int fb(No*);
+int fb(NoAVL*);
 
-No* rsd(Arvore*, No*);
-No* rse(Arvore*, No*);
-No* rdd(Arvore*, No*);
-No* rde(Arvore*, No*);
+NoAVL* rsd(Arvore*, NoAVL*);
+NoAVL* rse(Arvore*, NoAVL*);
+NoAVL* rdd(Arvore*, NoAVL*);
+NoAVL* rde(Arvore*, NoAVL*);
 
 int maximo(int a, int b) {
     return a > b ? a : b;
 }
 
-void destruir_no(No* no) {
-    if (no == NULL) {
+void destruir_no(NoAVL* no_avl) {
+    if (no_avl == NULL) {
         return;
     }
 
     // Recursivamente destruir os filhos
-    destruir_no(no->esquerda);
-    destruir_no(no->direita);
+    destruir_no(no_avl->esquerda);
+    destruir_no(no_avl->direita);
 
     // Liberar o nó atual
-    free(no);
+    free(no_avl);
 }
 
 void destruir_avl(Arvore* arvore) {
@@ -50,12 +50,12 @@ Arvore* criar() {
     return arvore;
 }
 
-int vazia(Arvore* arvore) {
+int vazia_avl(Arvore* arvore) {
     return arvore->raiz == NULL;
 }
 
-void adicionar(Arvore* arvore, int valor, int* contadores) {
-    No* no = arvore->raiz;
+void adicionar_avl(Arvore* arvore, int valor, int* contadores) {
+    NoAVL* no = arvore->raiz;
 
     while (no != NULL) {
         contadores[0]++; // cada comparacao de chave é contabilizada
@@ -75,7 +75,7 @@ void adicionar(Arvore* arvore, int valor, int* contadores) {
     }
 
     printf("Adicionando %d\n", valor);
-    No* novo = malloc(sizeof(No));
+    NoAVL* novo = malloc(sizeof(NoAVL));
     novo->valor = valor;
     novo->pai = no;
     novo->esquerda = NULL;
@@ -96,7 +96,7 @@ void adicionar(Arvore* arvore, int valor, int* contadores) {
 }
 
 
-void remover(Arvore* arvore, int valor, int* contador_rem){
+void remover_avl(Arvore* arvore, int valor, int* contador_rem){
 
     int filho_esq;
     int filho_dir;
@@ -106,8 +106,8 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
         return;
     }
 
-    No* no = arvore->raiz; 
-    No* pai = NULL;  
+    NoAVL* no = arvore->raiz; 
+    NoAVL* pai = NULL;  
 
     //inicio da busca pelo no a ser removido
     while (no != NULL && no->valor != valor) {
@@ -131,9 +131,9 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
         contador_rem[0]++; // Verificação se o nó tem filhos (neste caso, não tem)
         if(pai == NULL){ // o no que vai ser removido eh a raiz
             arvore->raiz = NULL;
-        }else if(pai->esquerda == no){ // remover o no da esquerda do pai
+        }else if(pai->esquerda == no){ // remover_avl o no da esquerda do pai
             pai->esquerda = NULL;
-        }else{  // remover o no da direita do pai
+        }else{  // remover_avl o no da direita do pai
             pai->direita = NULL;
         }
         free(no);
@@ -141,7 +141,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
     // caso 2 de remocao: o no a ser removido tem apenas um filho    
     }else if ((no->esquerda == NULL && no->direita != NULL)||( no->direita == NULL && no->esquerda != NULL)){
         contador_rem[0]++; // Verificação se o nó tem filhos (neste caso, um filho)
-        No* filho;
+        NoAVL* filho;
         // verificando onde que esta o unico no filho
         if(no->esquerda != NULL){
             filho = no->esquerda;
@@ -166,7 +166,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
         contador_rem[0]++; // Verificação se o nó tem filhos (neste caso, dois filhos)
 
         // substituir o no pelo sucessor em ordem
-        No* sucessor = no->direita;
+        NoAVL* sucessor = no->direita;
         while (sucessor->esquerda != NULL){
             sucessor = sucessor->esquerda;
         }
@@ -174,7 +174,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
         //trocar o atual pelo sucessor
         no->valor = sucessor->valor;
 
-        // remover o sucessor que tem um filho
+        // remover_avl o sucessor que tem um filho
         if(sucessor->pai->esquerda == sucessor){
             sucessor->pai->esquerda = sucessor->direita;
         }else{
@@ -191,7 +191,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
     }
 
     // rebalancear a arvore toda
-    No* atual;
+    NoAVL* atual;
     if(pai != NULL){
         atual = pai;
     }else{
@@ -211,7 +211,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
                 contador_rem[0]++; // Contabiliza a rotação
             }else{
                 rdd(arvore, atual);
-                contador_rem[0]++; // Contabiliza a rotação
+                contador_rem[0] =  contador_rem[0] + 2 ;
 
             }
 
@@ -221,7 +221,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
                 contador_rem[0]++; // Contabiliza a rotação            
             }else{
                 rde(arvore, atual);
-                contador_rem[0]++; // Contabiliza a rotação
+                contador_rem[0] =  contador_rem[0] + 2 ;
             }
         }
 
@@ -235,7 +235,7 @@ void remover(Arvore* arvore, int valor, int* contador_rem){
 
 
 
-No* localizar(No* no, int valor) {
+NoAVL* localizar(NoAVL* no, int valor) {
     while (no != NULL) {
         if (no->valor == valor) {
             return no;
@@ -247,7 +247,7 @@ No* localizar(No* no, int valor) {
     return NULL;
 }
 
-void percorrer(No* no, void (*callback)(int)) {
+void percorrer(NoAVL* no, void (*callback)(int)) {
     if (no != NULL) {
         percorrer(no->esquerda,callback);
         callback(no->valor);
@@ -255,11 +255,11 @@ void percorrer(No* no, void (*callback)(int)) {
     }
 }
 
-void visitar(int valor){
+void visitar_avl(int valor){
     printf("%d ", valor);
 }
 
-void balanceamento(Arvore* arvore, No* no, int* contadores) {
+void balanceamento(Arvore* arvore, NoAVL* no, int* contadores) {
     while (no != NULL) {
         no->altura = maximo(altura(no->esquerda), altura(no->direita)) + 1;
         contadores[0]++; // cada atualização da altura é contabilizada
@@ -274,7 +274,7 @@ void balanceamento(Arvore* arvore, No* no, int* contadores) {
             } else {
                 printf("RDD(%d)\n",no->valor);
                 rdd(arvore, no); //rotação dupla a direita, pois o FB do filho tem sinal diferente
-                contadores[0]++;
+                contadores[0] =  contadores[0] + 2 ;
             }
         } else if (fator < -1) { //árvore mais pesada para a direita
             //rotação para a esquerda
@@ -285,7 +285,7 @@ void balanceamento(Arvore* arvore, No* no, int* contadores) {
             } else {
                 printf("RDE(%d)\n",no->valor);
                 rde(arvore, no); //rotação dupla a esquerda, pois o FB do filho tem sinal diferente
-                contadores[0]++;
+                contadores[0] =  contadores[0] + 2 ;;
             }
         }
 
@@ -293,11 +293,11 @@ void balanceamento(Arvore* arvore, No* no, int* contadores) {
     }
 }
 
-int altura(No* no){
+int altura(NoAVL* no){
     return no != NULL ? no->altura : 0;
 }
 
-int fb(No* no) {
+int fb(NoAVL* no) {
     int esquerda = 0,direita = 0;
   
     if (no->esquerda != NULL) {
@@ -311,9 +311,9 @@ int fb(No* no) {
     return esquerda - direita;
 }
 
-No* rse(Arvore* arvore, No* no) {
-    No* pai = no->pai;
-    No* direita = no->direita;
+NoAVL* rse(Arvore* arvore, NoAVL* no) {
+    NoAVL* pai = no->pai;
+    NoAVL* direita = no->direita;
 
     if (direita->esquerda != NULL) {
         direita->esquerda->pai = no;
@@ -341,9 +341,9 @@ No* rse(Arvore* arvore, No* no) {
     return direita;
 }
 
-No* rsd(Arvore* arvore, No* no) {
-    No* pai = no->pai;
-    No* esquerda = no->esquerda;
+NoAVL* rsd(Arvore* arvore, NoAVL* no) {
+    NoAVL* pai = no->pai;
+    NoAVL* esquerda = no->esquerda;
 
     if (esquerda->direita != NULL) {
         esquerda->direita->pai = no;
@@ -371,12 +371,12 @@ No* rsd(Arvore* arvore, No* no) {
     return esquerda;
 }
 
-No* rde(Arvore* arvore, No* no) {
+NoAVL* rde(Arvore* arvore, NoAVL* no) {
     no->direita = rsd(arvore, no->direita);
     return rse(arvore, no);
 }
 
-No* rdd(Arvore* arvore, No* no) {
+NoAVL* rdd(Arvore* arvore, NoAVL* no) {
     no->esquerda = rse(arvore, no->esquerda);
     return rsd(arvore, no);
 }
@@ -390,7 +390,7 @@ void imprimir_por_altura(Arvore* arvore) {
     
     int num = 10000; // ajustar conforme o numero de testes cresce
     
-    No** fila = malloc(sizeof(No*) * num); // fila para ate num numeros
+    NoAVL** fila = malloc(sizeof(NoAVL*) * num); // fila para ate num numeros
     int inicio = 0, fim = 0; // indices para fim e inicio da fila
     
     fila[fim++] = arvore->raiz;
@@ -402,7 +402,7 @@ void imprimir_por_altura(Arvore* arvore) {
     printf("Nível %d: ", nivel_atual); // printa a raiz no nivel 0
     
     while (inicio < fim) {
-        No* no_atual = fila[inicio++];
+        NoAVL* no_atual = fila[inicio++];
 
         if (no_atual == NULL) { // mudanca de nivel para impressao
             if (inicio < fim) {

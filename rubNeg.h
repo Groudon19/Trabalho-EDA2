@@ -17,18 +17,25 @@ typedef struct no {
 typedef struct arvore {
     No* raiz;
     No* nulo; 
-} Arvore;
+} ArvoreRN;
 
-// Declaração de funções
-Arvore* criar();
-int vazia(Arvore* arvore);
-No* adicionar(Arvore* arvore, int valor);
-void percorrerProfundidadeInOrder(Arvore* arvore, No* no, void (*callback)(int));
+// Declaração de funções com o parâmetro contador
+ArvoreRN* criarRN();
+int vazia(ArvoreRN* arvore);
+No* adicionar(ArvoreRN* arvore, int valor, int* contador);
+No* adicionarNo(ArvoreRN* arvore, No* no, int valor, int* contador);
+No* criarNo(ArvoreRN* arvore, No* pai, int valor);
+No* localizarRN(ArvoreRN* arvore, int valor);
+void percorrerProfundidadeInOrder(ArvoreRN* arvore, No* no, void (*callback)(int));
+void percorrerProfundidadePreOrder(ArvoreRN* arvore, No* no, void (*callback)(int));
+void percorrerProfundidadePosOrder(ArvoreRN* arvore, No* no, void (*callback)(int));
 void visitar(int valor);
-void remover(Arvore* arvore, int valor);
-No* criarNo(Arvore* arvore, No* pai, int valor);
-void balancear(Arvore* arvore, No* no);
-void rotacionarEsquerda(Arvore* arvore, No* no);
-void rotacionarDireita(Arvore* arvore, No* no);
+void balancear(ArvoreRN* arvore, No* no, int* contador);
+void rotacionarEsquerda(ArvoreRN* arvore, No* no, int* contador);
+void rotacionarDireita(ArvoreRN* arvore, No* no, int* contador);
+void transplante(ArvoreRN* arvore, No* u, No* v);
+No* minimoSubarvore(ArvoreRN* arvore, No* no);
+void correcaoRemocao(ArvoreRN* arvore, No* x, int* contador);
+void remover(ArvoreRN* arvore, int valor, int* contador);
 
 #endif

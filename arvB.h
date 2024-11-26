@@ -1,41 +1,46 @@
+#ifndef ARVB_H
+#define ARVB_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
+// Estrutura do nó da Árvore B
 typedef struct noB {
-    int total_chaves;
-    int* chaves;
-    struct noB** filhos;
-    struct noB* pai;
+    int total_chaves;      // Número de chaves no nó
+    int* chaves;           // Vetor de chaves
+    struct noB** filhos;   // Vetor de ponteiros para filhos
+    struct noB* pai;       // Ponteiro para o nó pai
 } NoB;
 
+// Estrutura da Árvore B
 typedef struct arvoreB {
-    NoB* raiz;
-    int ordem;
+    NoB* raiz;  // Ponteiro para a raiz da árvore
+    int ordem;  // Ordem da árvore (máximo de filhos = 2 * ordem)
 } ArvoreB;
 
+// Protótipos das funções
 ArvoreB* criaArvoreB(int ordem);
 NoB* criaNoB(ArvoreB* arvore);
 void percorreArvoreB(NoB* no, void (visita)(int chave));
 void imprime(int chave);
 int loclizaChave(ArvoreB* arvore, int chave);
 int pesquisaBinaria(NoB* no, int chave);
-NoB* localizaNoB(ArvoreB* arvore, int chave, int* contadores);
-void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* contadores);
+NoB* localizaNoB(ArvoreB* arvore, int chave);
 int transbordo(ArvoreB* arvore, NoB* no);
-NoB* divideNoB(ArvoreB* arvore, NoB* no, int* contadores);
-void adicionaChave(ArvoreB* arvore, int chave, int* contadores);
-void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave, int* contadores);
-void removeChaveFolha(NoB* no, int chave, int* contadores);
-void removeChave(ArvoreB* arvore, int chave, int* contadores);
-void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contadores);
-int encontraPredecessor(NoB* no, int* contadores);
-int encontraSucessor(NoB* no, int* contadores);
-void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* contadores);
-void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contadores);
-void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contadores);
+NoB* divideNoB(ArvoreB* arvore, NoB* no);
+void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* contador);
+void adicionaChave(ArvoreB* arvore, int chave, int* contador);
+void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave, int* contador);
+void removeChaveFolha(NoB* no, int chave);
+void removeChave(ArvoreB* arvore, int chave, int* contador);
+void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador);
+int encontraPredecessor(NoB* no);
+int encontraSucessor(NoB* no);
+void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* contador);
+void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador);
+void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador);
 void imprimeDetalhesNo(NoB* no, int nivel);
 void imprimeDetalhesArvore(ArvoreB* arvore);
-int existe_no_vetor(int* vet, int tam, int valor);
 void tira_vetor(int* vet, int* tam, int valor);
 
-
+#endif // ARVB_H

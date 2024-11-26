@@ -20,9 +20,10 @@ def plotar_graficos(adicao_csv, remocao_csv):
     plt.plot(df_adicao['Tamanho da árvore'], df_adicao['Comparações Adição AVL'], label='AVL Adição', color='blue')
     plt.plot(df_adicao['Tamanho da árvore'], df_adicao['Comparações Adição RN'], label='Rubro-Negra Adição', color='green')
     plt.plot(df_adicao['Tamanho da árvore'], df_adicao['Comparações Adição B'], label='Árvore B Adição', color='red')
-    plt.title('Comparação de Adição - Árvores AVL, Rubro-Negra e B')
+    plt.title('Comparação de Adição - Árvores AVL, Rubro-Negra e B (Escala Logarítmica)')
     plt.xlabel('Tamanho da Árvore')
     plt.ylabel('Comparações de Adição')
+    plt.yscale('log')  # Define o eixo Y em escala logarítmica
     plt.legend()
     plt.grid(True)
 
@@ -31,9 +32,10 @@ def plotar_graficos(adicao_csv, remocao_csv):
     plt.plot(df_remocao['Tamanho da árvore'], df_remocao['Comparações Remoção AVL'], label='AVL Remoção', color='blue')
     plt.plot(df_remocao['Tamanho da árvore'], df_remocao['Comparações Remoção RN'], label='Rubro-Negra Remoção', color='green')
     plt.plot(df_remocao['Tamanho da árvore'], df_remocao['Comparações Remoção B'], label='Árvore B Remoção', color='red')
-    plt.title('Comparação de Remoção - Árvores AVL, Rubro-Negra e B')
+    plt.title('Comparação de Remoção - Árvores AVL, Rubro-Negra e B (Escala Logarítmica)')
     plt.xlabel('Tamanho da Árvore')
     plt.ylabel('Comparações de Remoção')
+    plt.yscale('log')  # Define o eixo Y em escala logarítmica
     plt.legend()
     plt.grid(True)
 

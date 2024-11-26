@@ -1,4 +1,4 @@
-#include "arvoreB.h"
+#include "arvB.h"
 
 ArvoreB* criaArvoreB(int ordem){
     ArvoreB* a = malloc(sizeof(ArvoreB));
@@ -111,42 +111,48 @@ NoB* divideNoB(ArvoreB* arvore, NoB* no){
     return novo;
 }
 
-void adicionaChaveNo(NoB* no, NoB* direita, int chave){
+void adicionaChaveNo(NoB* no, NoB* direita, int chave, int* contador){
     int i = pesquisaBinaria(no, chave);
 
+    contador[2]++;
     for (int j = no->total_chaves - 1; j >= i; j--){
         no->chaves[j + 1] = no->chaves[j];
         no->filhos[j + 2] = no->filhos[j + 1];
+        contador[2]++;
     }
 
     no->chaves[i] = chave;
     no->filhos[i + 1] = direita;
 
+    //contador[2]++;
     no-> total_chaves++;
 }
 
-void adicionaChave(ArvoreB* arvore, int chave){
+void adicionaChave(ArvoreB* arvore, int chave, int* contador){
     NoB* no = localizaNoB(arvore, chave);
-
-    adicionaChaveRecursivo(arvore, no, NULL, chave);
+    contador[2]++;
+    adicionaChaveRecursivo(arvore, no, NULL, chave, contador);
 }
 
-void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave){
-    adicionaChaveNo(no, novo, chave);
+void adicionaChaveRecursivo(ArvoreB* arvore, NoB* no, NoB* novo, int chave, int* contador){
+    adicionaChaveNo(no, novo, chave, contador);
+    //contador[2]++;
     if (transbordo(arvore, no)){
         int promovido = no->chaves[arvore->ordem];
+        contador[2]++;
         NoB* novo = divideNoB(arvore, no);
-
+        
+        contador[2]++;
         if(no->pai == NULL){
             NoB* raiz = criaNoB(arvore);
             raiz->filhos[0] = no;
-            adicionaChaveNo(raiz, novo, promovido);// diferente do slide
+            adicionaChaveNo(raiz, novo, promovido, contador);// diferente do slide
 
             no->pai = raiz;
             novo->pai = raiz;
             arvore->raiz = raiz;
         } else {
-            adicionaChaveRecursivo(arvore, no->pai, novo, promovido);
+            adicionaChaveRecursivo(arvore, no->pai, novo, promovido, contador);
         }
     }
 }
@@ -160,7 +166,7 @@ void removeChaveFolha(NoB* no, int chave){
     no->total_chaves--;
 }
 
-void removeChave(ArvoreB* arvore, int chave) {
+void removeChave(ArvoreB* arvore, int chave, int* contador) {
     NoB* raiz = arvore->raiz;
 
     if (raiz == NULL) {
@@ -168,7 +174,7 @@ void removeChave(ArvoreB* arvore, int chave) {
         return;
     }
 
-    removeChaveRecursivo(arvore, raiz, chave);
+    removeChaveRecursivo(arvore, raiz, chave, contador);
 
     // raiz ficou vazia e não é folha
     if(raiz->total_chaves == 0){
@@ -180,8 +186,7 @@ void removeChave(ArvoreB* arvore, int chave) {
         }
     }
 }
-
-void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave) {
+void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave, int* contador) {
     int i = pesquisaBinaria(no, chave);
 
     // Caso 1: A chave está em uma folha
@@ -189,6 +194,7 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave) {
         if (i < no->total_chaves && no->chaves[i] == chave) {
             // Remover a chave do nó folha
             removeChaveFolha(no, chave);
+            contador[3]++;  // Contabiliza a remoção
             printf("\nCaso 1\n");
         } else {
             printf("\nChave %d não encontrada.\n", chave);
@@ -205,19 +211,21 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave) {
             // Caso 2a: Substituir pelo predecessor
             int predecessor = encontraPredecessor(filhoEsq);
             no->chaves[i] = predecessor;
+            contador[3]++;  // Contabiliza a remoção do predecessor
             printf("\nCaso 2a\n");
-            removeChaveRecursivo(arvore, filhoEsq, predecessor);
+            removeChaveRecursivo(arvore, filhoEsq, predecessor, contador);
         } else if (filhoDir->total_chaves >= arvore->ordem) {
             // Caso 2b: Substituir pelo sucessor
             int sucessor = encontraSucessor(filhoDir);
             no->chaves[i] = sucessor;
+            contador[3]++;  // Contabiliza a remoção do sucessor
             printf("\nCaso 2b\n");
-            removeChaveRecursivo(arvore, filhoDir, sucessor);
+            removeChaveRecursivo(arvore, filhoDir, sucessor, contador);
         } else {
             // Caso 2c: Fusão de filhos
-            fundirNos(arvore, no, i);
+            fundirNos(arvore, no, i, contador);
             printf("\nCaso 2c\n");
-            removeChaveRecursivo(arvore, filhoEsq, chave);
+            removeChaveRecursivo(arvore, filhoEsq, chave, contador);
         }
         return;
     }
@@ -232,24 +240,23 @@ void removeChaveRecursivo(ArvoreB* arvore, NoB* no, int chave) {
         if (irmaoEsq != NULL && irmaoEsq->total_chaves >= arvore->ordem) {
             // Caso 3a: Redistribuir do irmão esquerdo
             printf("\nCaso 3a(esq)\n");
-            redistribuirEsquerda(no, filho, irmaoEsq, i);
+            redistribuirEsquerda(no, filho, irmaoEsq, i, contador);
         } else if (irmaoDir != NULL && irmaoDir->total_chaves >= arvore->ordem) {
             printf("\nCaso 3a (dir)\n");
-            redistribuirDireita(no, filho, irmaoDir, i);
+            redistribuirDireita(no, filho, irmaoDir, i, contador);
         } else {
             printf("\nCaso 3b\n");
             if (irmaoEsq != NULL) {
-                fundirNos(arvore, no, i - 1);
+                fundirNos(arvore, no, i - 1, contador);
                 filho = irmaoEsq;
             } else {
-                fundirNos(arvore, no, i);
-                
+                fundirNos(arvore, no, i, contador);
             }
         }
     }
 
     // Continuar a busca recursivamente
-    removeChaveRecursivo(arvore, filho, chave);
+    removeChaveRecursivo(arvore, filho, chave, contador);
 }
 
 int encontraPredecessor(NoB* no) {
@@ -266,11 +273,10 @@ int encontraSucessor(NoB* no) {
     return no->chaves[0];
 }
 
-void fundirNos(ArvoreB* arvore, NoB* no, int indice) {
+void fundirNos(ArvoreB* arvore, NoB* no, int indice, int* contador) {
     NoB* filhoEsq = no->filhos[indice];
     NoB* filhoDir = no->filhos[indice + 1];
 
-   
     filhoEsq->chaves[filhoEsq->total_chaves] = no->chaves[indice];  // trocar chave do pai para o filho esquerdo
 
     //  Copiando chaves e filhos do irmao direito para o filho esquerdo
@@ -293,13 +299,14 @@ void fundirNos(ArvoreB* arvore, NoB* no, int indice) {
     no->total_chaves--; //diminuir porque fundiu dois nós
 
     free(filhoDir);
+    contador[3]++;  // Contabiliza a fusão dos nós
 }
 
-void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice) {
+void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador) {
     if(filho->total_chaves >= 1){
         for (int i = filho->total_chaves; i > 0; i--) {
-        filho->chaves[i] = filho->chaves[i - 1];
-        filho->filhos[i + 1] = filho->filhos[i]; //substituição simples, da direita recebe o anterior
+            filho->chaves[i] = filho->chaves[i - 1];
+            filho->filhos[i + 1] = filho->filhos[i]; //substituição simples, da direita recebe o anterior
         }
     }
     
@@ -315,9 +322,10 @@ void redistribuirEsquerda(NoB* pai, NoB* filho, NoB* irmao, int indice) {
     }
     filho->total_chaves++;
     irmao->total_chaves--;
+    contador[3]++;  // Contabiliza a redistribuição
 }
 
-void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice) {
+void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice, int* contador) {
     filho->chaves[filho->total_chaves] = pai->chaves[indice];
     filho->filhos[filho->total_chaves + 1] = irmao->filhos[0];
     pai->chaves[indice] = irmao->chaves[0];
@@ -329,6 +337,7 @@ void redistribuirDireita(NoB* pai, NoB* filho, NoB* irmao, int indice) {
     irmao->filhos[irmao->total_chaves - 1] = irmao->filhos[irmao->total_chaves];
     irmao->total_chaves--;
     filho->total_chaves++;
+    contador[3]++;  // Contabiliza a redistribuição
 }
 
 
@@ -366,6 +375,7 @@ void imprimeDetalhesArvore(ArvoreB* arvore) {
     printf("--------------------------------\n");
 }
 
+/*
 // verifica a existencia do valor no vetor
 int existe_no_vetor(int* vet, int tam, int valor){
 
@@ -397,3 +407,4 @@ void tira_vetor(int* vet, int* tam, int valor){
     vet[*tam] = 0;
 
 }
+*/
